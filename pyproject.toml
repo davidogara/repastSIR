@@ -2,8 +2,14 @@
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+include-package-data = true 
+
 [tool.setuptools.packages.find]
 where = ["src"] # if using src-layout
+
+[tool.setuptools.package-data]
+"repastSIR" = ["input/*"]
 
 [project]
 name = "repast-sir"

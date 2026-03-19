@@ -1,1 +1,1 @@
-recursive-include repast_sir/input/*
+recursive-include input/*
