@@ -1,0 +1,18 @@
+# ground truth parameter file for repastSIR box norm experiments index
+n: 2000
+world.xmax: 50
+world.ymax: 50
+world.xmin: 0
+world.ymin: 0
+counts_file: output_box_norm/data.csv
+stop.at: 180
+beta: 0.06918367346938775
+seed: 0
+gamma: 6
+init_infect_loc: [[42,50]]
+index_case: 'index_case_seed_size'
+# options
+return_data: True
+override_seed: 54
+save_movement: False
+run_number: 0

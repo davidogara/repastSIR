@@ -1,0 +1,42 @@
+[project]
+name = "repast-sir"
+version = "0.0.1"
+authors = [
+  { name="David O'Gara", email="dogara@anl.gov" },
+]
+description = "Stand-alone runnable version of a repast SIR model"
+readme = "README.md"
+requires-python = ">=3.9"
+
+
+dependencies = [
+    "Cython==3.2.2",
+    "joblib==1.5.2",
+    "llvmlite==0.45.1",
+    "matplotlib==3.10.7",
+    "mpi4py==4.1.1",
+    "mpmath==1.3.0",
+    "networkx==3.4.2",
+    "numba==0.62.1",
+    "numpy==2.2.6",
+    "pandas==2.3.3",
+    "PyYAML==6.0.3",
+    "repast4py==1.2.1",
+    "torch==2.9.1",
+    "typing_extensions==4.15.0"
+]
+
+
+
+
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+
+[project.scripts]
+run-batch = "repastSIR.SIR:run_batch_cmd"
