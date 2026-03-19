@@ -410,6 +410,7 @@ def run_batch_cmd():
 
 
 def run_batch(X,ytrue = None):
+    cpu_count = os.cpu_count()
     if ytrue is None:
         here = os.path.dirname(__file__)
         fp = os.path.join(here,'input','repastSIR_ground_truth.csv')
@@ -418,7 +419,7 @@ def run_batch(X,ytrue = None):
     def parallel_func(par):
         simout = run_sim_err(par,ytrue=ytrue)
         return simout
-    parallel = Parallel(n_jobs=-1,return_as="list")
+    parallel = Parallel(n_jobs=int(0.6*os.cpu_count()),return_as="list")
     pars = [x for x in X]
     results =  parallel(delayed(parallel_func)(par) for par in pars)
 
