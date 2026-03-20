@@ -5,7 +5,7 @@ world.ymax: 50
 world.xmin: 0
 world.ymin: 0
 counts_file: output_box_norm/data.csv
-stop.at: 180
+stop.at: 100
 beta: 0.06918367346938775
 seed: 0
 gamma: 6
