@@ -414,7 +414,9 @@ def run_batch(X,ytrue = None):
     if ytrue is None:
         here = os.path.dirname(__file__)
         fp = os.path.join(here,'input','repastSIR_ground_truth.csv')
-        ground_truth = pd.read_csv(fp)
+        model_pars = read_yaml(os.path.join(here,'input','pars_box_norm_ground_truth.yaml'))
+        tick_max = model_pars['stop.at']
+        ground_truth = pd.read_csv(fp).query('tick<=@tick_max')
         ytrue = ground_truth['I'].values
     def parallel_func(par):
         simout = run_sim_err(par,ytrue=ytrue)
