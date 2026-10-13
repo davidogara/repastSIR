@@ -357,13 +357,18 @@ def run(params: Dict,y_true = None, return_err = False):
 
 
     beta_range = np.array([0.05,0.10])
+    gamma_range = np.array([4,10])
+    if len(params) == 2:
+        # if just beta, seed, add ground truth gamma
+        params = np.array([params[0],0.25,params[1]])
     beta = beta_range[0] + params[0] * (beta_range.max() - beta_range.min())
-    seed = int(params[1])
+    gamma = gamma_range[0] + params[1] * (gamma_range.max() - gamma_range.min())
+    seed = int(params[2])
     
     here = os.path.dirname(__file__)
     base_pars = read_yaml(os.path.join(here,'input','pars_box_norm_ground_truth.yaml'))
     params = base_pars.copy()
-    params.update({'beta':beta,'seed':seed})
+    params.update({'beta':beta,'gamma':gamma,'seed':seed})
 
 
     model = Model(MPI.COMM_WORLD, params)
@@ -397,7 +402,9 @@ def run_batch_cmd():
     args = parser.parse_args()
     with open(args.pars) as stream:
         pars = json.load(stream)
-    X = pd.DataFrame(pars)[['beta','seed']].values
+    df = pd.DataFrame(pars)
+    cols = [col for col in ('beta','gamma','seed') if col in df.columns]
+    X = df[cols].values
     result = run_batch(X)
     # parse results
     result['Y'] = result['Y'].tolist()
@@ -430,7 +437,7 @@ def run_batch(X,ytrue = None):
     for i, par in enumerate(X):
         res = results[i]
         sim = res['res']
-        sim['sim_id'] = i
+        sim['sim_id'] = i+1
         sims.append(sim)
         Y.append(res['out'])
     sims = pd.concat(sims)
