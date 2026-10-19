@@ -378,7 +378,8 @@ def run(params: Dict,y_true = None, return_err = False):
         sim = pd.DataFrame(model.data_set)
         
         ans = {'out': ((sim['I']-y_true)**2).sum(),
-               'res': sim
+               'res': sim,
+               'pars': {'beta':beta,'gamma':gamma,'seed':seed} 
             }
         return ans
     if params['return_data']:
