@@ -13,6 +13,6 @@ init_infect_loc: [[42,50]]
 index_case: 'index_case_seed_size'
 # options
 return_data: True
-override_seed: 54
+override_seed: null
 save_movement: False
 run_number: 0

@@ -357,10 +357,10 @@ def run(params: Dict,y_true = None, return_err = False):
 
 
     beta_range = np.array([0.05,0.10])
-    gamma_range = np.array([4,10])
+    gamma_range = np.array([4,8])
     if len(params) == 2:
         # if just beta, seed, add ground truth gamma
-        params = np.array([params[0],0.25,params[1]])
+        params = np.array([params[0],0.5,params[1]])
     beta = beta_range[0] + params[0] * (beta_range.max() - beta_range.min())
     gamma = gamma_range[0] + params[1] * (gamma_range.max() - gamma_range.min())
     seed = int(params[2])
