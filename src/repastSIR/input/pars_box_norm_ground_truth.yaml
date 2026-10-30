@@ -13,7 +13,8 @@ init_infect_loc: [[42,50]]
 index_case: 'index_case_seed_size'
 # options
 return_data: True
-override_seed: null
-seed_modulo: null
+override_seed: null # fix random walks to one seed
+seed_modulo: null # divide random seed for index case placement
+seed_offset: 0 # offset random number stream
 save_movement: False
 run_number: 0

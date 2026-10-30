@@ -175,7 +175,7 @@ class Model:
         if self.pars['override_seed']:
             random.init(pars['override_seed'])
         else:    
-            random.init(pars['seed'])
+            random.init(pars['seed'] + pars.get('seed_offset',0))
         self.runner = schedule.init_schedule_runner(comm)
         self.runner.schedule_repeating_event(1, 1, self.step)
         self.runner.schedule_stop(pars['stop.at'])
