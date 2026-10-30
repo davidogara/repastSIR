@@ -215,14 +215,12 @@ class Model:
             xc = int((bounds[1] - bounds[0]) / 2)
             yc = int((bounds[3] - bounds[2]) / 2)
             # get all points within radius of center (using inf norm like a box)
-            x,y = xc + self.pars['seed'], yc + self.pars['seed']
-            #xpts = np.arange(box.xmin,box.xextent+1)
-            #ypts = np.arange(box.ymin,box.xextent+1)
-            #pts = np.array([(x,y) for x in xpts for y in ypts])
-            #dist = np.linalg.norm(pts - np.array([xc,yc]),ord=np.inf,axis=1)
+            if self.pars.get('seed_modulo') is not None:
+                denom = self.pars['seed_modulo']
+                x,y = xc + self.pars['seed'] % denom, yc + self.pars['seed'] % denom
+            else:
+                x,y = xc + self.pars['seed'], yc + self.pars['seed']
             
-            #pts_eligible = pts[dist==self.pars['seed']]
-            #x, y = rng.choice(pts_eligible,size=1).squeeze()
         else:
             x,y = self.pars['init_infect_loc']
         return x,y
@@ -343,7 +341,7 @@ class Model:
         else:
             self.data_set.log(tick) 
 
-def run(params: Dict,y_true = None, return_err = False):
+def run(params: Dict,y_true = None, return_err = False, base_pars: Dict = None ):
     r'''
     
     Creates and runs the SIR Model.
@@ -355,20 +353,21 @@ def run(params: Dict,y_true = None, return_err = False):
     '''
     global model
 
-
+    # scale input pars
     beta_range = np.array([0.05,0.10])
     gamma_range = np.array([4,8])
     if len(params) == 2:
         # if just beta, seed, add ground truth gamma
-        params = np.array([params[0],0.5,params[1]])
-    beta = beta_range[0] + params[0] * (beta_range.max() - beta_range.min())
-    gamma = gamma_range[0] + params[1] * (gamma_range.max() - gamma_range.min())
-    seed = int(params[2])
+        params = np.array([params['beta'],0.5,params['gamma']])
     
-    here = os.path.dirname(__file__)
-    base_pars = read_yaml(os.path.join(here,'input','pars_box_norm_ground_truth.yaml'))
-    params = base_pars.copy()
-    params.update({'beta':beta,'gamma':gamma,'seed':seed})
+    params['beta'] = beta_range[0] + params['beta'] * (beta_range.max() - beta_range.min())
+    params['gamma'] = gamma_range[0] + params['gamma'] * (gamma_range.max() - gamma_range.min())
+    params['seed'] = int(params['seed'])
+    if base_pars is None:
+        here = os.path.dirname(__file__)
+        base_pars = read_yaml(os.path.join(here,'input','pars_box_norm_ground_truth.yaml'))
+    params = base_pars | params
+    
 
 
     model = Model(MPI.COMM_WORLD, params)
@@ -379,7 +378,9 @@ def run(params: Dict,y_true = None, return_err = False):
         
         ans = {'out': ((sim['I']-y_true)**2).sum(),
                'res': sim,
-               'pars': {'beta':beta,'gamma':gamma,'seed':seed} 
+               'pars': {'beta': params['beta'],
+                        'gamma': params['gamma'],
+                        'seed': params['seed']} 
             }
         return ans
     if params['return_data']:
@@ -404,9 +405,7 @@ def run_batch_cmd():
     with open(args.pars) as stream:
         pars = json.load(stream)
     df = pd.DataFrame(pars)
-    cols = [col for col in ('beta','gamma','seed') if col in df.columns]
-    X = df[cols].values
-    result = run_batch(X)
+    result = run_batch(df.to_dict(orient='records'),ytrue=None)
     # parse results
     result['Y'] = result['Y'].tolist()
     result['sims'] = result['sims'].to_dict(orient='records')
@@ -418,7 +417,6 @@ def run_batch_cmd():
 
 
 def run_batch(X,ytrue = None):
-    cpu_count = os.cpu_count()
     if ytrue is None:
         here = os.path.dirname(__file__)
         fp = os.path.join(here,'input','repastSIR_ground_truth.csv')
@@ -445,8 +443,8 @@ def run_batch(X,ytrue = None):
     Y = np.array(Y)
     return {'Y':Y,'sims':sims}   
 
-def run_sim_err(par,ytrue = None):
-    return run(par,y_true=ytrue, return_err=True)
+def run_sim_err(par,ytrue = None, base_pars = None):
+    return run(par,y_true=ytrue, return_err=True, base_pars=base_pars)
 
 
 def read_yaml(path: str) -> dict:
