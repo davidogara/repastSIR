@@ -401,11 +401,12 @@ def run_batch_cmd():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--pars", type=str, default="{}", help="json parameters string")
+    parser.add_argument("--n_cores",type=int,default=1,help="number of cores")
     args = parser.parse_args()
     with open(args.pars) as stream:
         pars = json.load(stream)
     df = pd.DataFrame(pars)
-    result = run_batch(df.to_dict(orient='records'),ytrue=None)
+    result = run_batch(df.to_dict(orient='records'),ytrue=None,n_cores=args.n_cores)
     # parse results
     result['Y'] = result['Y'].tolist()
     result['sims'] = result['sims'].to_dict(orient='records')
@@ -416,7 +417,7 @@ def run_batch_cmd():
     
 
 
-def run_batch(X,ytrue = None):
+def run_batch(X,ytrue = None,n_cores = 1):
     if ytrue is None:
         here = os.path.dirname(__file__)
         fp = os.path.join(here,'input','repastSIR_ground_truth.csv')
@@ -427,7 +428,8 @@ def run_batch(X,ytrue = None):
     def parallel_func(par):
         simout = run_sim_err(par,ytrue=ytrue)
         return simout
-    parallel = Parallel(n_jobs=int(0.6*os.cpu_count()),return_as="list")
+    n_jobs = int(0.6*os.cpu_count()) if n_cores is None else n_cores 
+    parallel = Parallel(n_jobs=n_jobs,return_as="list")
     pars = [x for x in X]
     results =  parallel(delayed(parallel_func)(par) for par in pars)
 

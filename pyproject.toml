@@ -13,7 +13,7 @@ where = ["src"] # if using src-layout
 
 [project]
 name = "repast-sir"
-version = "0.0.2.1"
+version = "0.0.2.2"
 authors = [
   { name="David O'Gara", email="dogara@anl.gov" },
 ]
